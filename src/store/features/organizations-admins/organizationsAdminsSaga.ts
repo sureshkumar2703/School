@@ -14,9 +14,13 @@ import {
 function* handleFetchAdmins(action: ReturnType<typeof fetchAdminsRequest>) {
   try {
     const organizationKey = action.payload;
-    const { data, error } = yield call(() =>
-      supabase.from('admin_data').select('*').eq('organization_key', organizationKey)
-    );
+    const { data, error } = yield call(() => {
+      let query = supabase.from('admin_data').select('*').order('created_at', { ascending: false });
+      if (organizationKey && organizationKey !== 'ALL') {
+        query = query.eq('organization_key', organizationKey);
+      }
+      return query;
+    });
     if (error) throw error;
     yield put(fetchAdminsSuccess(data));
   } catch (err: any) {

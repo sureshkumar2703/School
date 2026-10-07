@@ -1,0 +1,547 @@
+/* ==========================================================================
+   EduPulse School Management Portal - Register Page Stylesheet
+   Pixel-perfect implementation of the Register Mockup (Desktop & Mobile)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --ep-reg-font-serif: 'Playfair Display', Georgia, Cambria, serif;
+  --ep-reg-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ep-reg-blue-primary: #2563eb;
+  --ep-reg-blue-hover: #1d4ed8;
+  --ep-reg-text-main: #0f172a;
+  --ep-reg-text-muted: #64748b;
+  --ep-reg-text-subtle: #94a3b8;
+  --ep-reg-border: #cbd5e1;
+  --ep-reg-emerald: #10b981;
+}
+
+/* Page Outer Container with subtle dot matrix grid */
+.ep-register-page {
+  font-family: var(--ep-reg-font-sans);
+  color: var(--ep-reg-text-main);
+  background-color: #f8fafc;
+  background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ep-register-page *,
+.ep-register-page *::before,
+.ep-register-page *::after {
+  box-sizing: border-box;
+}
+
+/* Top Navbar */
+.ep-reg-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.ep-reg-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.ep-reg-brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+
+.ep-reg-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-reg-brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ep-reg-text-main);
+  line-height: 1.2;
+}
+
+.ep-reg-brand-sub {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ep-reg-text-muted);
+  text-transform: uppercase;
+}
+
+.ep-reg-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ep-reg-session-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.ep-reg-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--ep-reg-emerald);
+  display: inline-block;
+}
+
+.ep-reg-faq-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ep-reg-text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.ep-reg-faq-link:hover {
+  color: var(--ep-reg-blue-primary);
+}
+
+/* Center Content & Card */
+.ep-reg-content-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.ep-reg-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  border: 1px solid #eef2f6;
+  position: relative;
+  overflow: hidden;
+}
+
+.ep-reg-card-accent-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+}
+
+.ep-reg-card-body {
+  padding: 38px 36px 28px 36px;
+}
+
+.ep-reg-title {
+  font-family: var(--ep-reg-font-serif);
+  font-size: 29px;
+  font-weight: 700;
+  color: var(--ep-reg-text-main);
+  text-align: center;
+  margin: 0 0 6px 0;
+  line-height: 1.25;
+}
+
+.ep-reg-subtitle {
+  font-size: 13.5px;
+  color: var(--ep-reg-text-muted);
+  text-align: center;
+  margin: 0 0 28px 0;
+}
+
+/* Custom Stepper */
+.ep-reg-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.ep-reg-step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ep-reg-step-number {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ep-reg-step-number.active {
+  background: var(--ep-reg-blue-primary);
+  color: #ffffff;
+}
+
+.ep-reg-step-number.inactive {
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+}
+
+.ep-reg-step-number.completed {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.ep-reg-step-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ep-reg-text-muted);
+}
+
+.ep-reg-step-label.active {
+  color: var(--ep-reg-text-main);
+  font-weight: 700;
+}
+
+.ep-reg-step-divider {
+  width: 60px;
+  height: 1.5px;
+  background: #e2e8f0;
+  margin: 0 12px;
+}
+
+/* Form Groups & Inputs */
+.ep-reg-form-group {
+  margin-bottom: 20px;
+}
+
+.ep-reg-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 7px;
+}
+
+.ep-reg-req-star {
+  color: #ef4444;
+  margin-right: 2px;
+}
+
+.ep-reg-input-box {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  background: #ffffff;
+  border: 1px solid var(--ep-reg-border);
+  border-radius: 8px;
+  padding: 0 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ep-reg-input-box:focus-within {
+  border-color: var(--ep-reg-blue-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.ep-reg-input-prefix {
+  color: #94a3b8;
+  font-size: 15px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ep-reg-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--ep-reg-font-sans);
+  font-size: 13.5px;
+  color: var(--ep-reg-text-main);
+}
+
+.ep-reg-input-field::placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.ep-reg-input-suffix {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.ep-reg-input-suffix:hover {
+  color: var(--ep-reg-text-main);
+}
+
+.ep-reg-hint-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--ep-reg-text-muted);
+  margin-top: 8px;
+}
+
+.ep-reg-hint-row svg {
+  color: var(--ep-reg-text-subtle);
+  flex-shrink: 0;
+}
+
+/* Primary Action Button */
+.ep-reg-btn-primary {
+  width: 100%;
+  height: 44px;
+  background-color: var(--ep-reg-blue-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--ep-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 24px;
+}
+
+.ep-reg-btn-primary:hover {
+  background-color: var(--ep-reg-blue-hover);
+}
+
+.ep-reg-btn-primary:active {
+  transform: scale(0.99);
+}
+
+.ep-reg-btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Secondary Back Button */
+.ep-reg-btn-back {
+  background: none;
+  border: none;
+  color: var(--ep-reg-blue-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.ep-reg-btn-back:hover {
+  text-decoration: underline;
+}
+
+.ep-reg-org-verified-tag {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Login Redirect Row */
+.ep-reg-login-row {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ep-reg-text-muted);
+  margin-top: 22px;
+}
+
+.ep-reg-login-row a {
+  color: var(--ep-reg-blue-primary);
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.ep-reg-login-row a:hover {
+  text-decoration: underline;
+}
+
+/* Card Bottom Security Badges */
+.ep-reg-security-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 11px;
+  color: var(--ep-reg-text-subtle);
+  flex-wrap: wrap;
+}
+
+.ep-reg-security-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ep-reg-security-item svg {
+  color: var(--ep-reg-emerald);
+}
+
+.ep-reg-security-sep {
+  color: #cbd5e1;
+}
+
+/* Page Bottom Footer */
+.ep-reg-page-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 40px;
+  font-size: 11.5px;
+  color: var(--ep-reg-text-subtle);
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.ep-reg-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.ep-reg-footer-links a,
+.ep-reg-footer-links button {
+  color: var(--ep-reg-text-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.ep-reg-footer-links a:hover,
+.ep-reg-footer-links button:hover {
+  color: var(--ep-reg-blue-primary);
+}
+
+/* Alert Box */
+.ep-reg-alert {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   MOBILE SCREEN RESPONSIVENESS
+   ========================================================================== */
+
+@media (max-width: 767.98px) {
+  .ep-reg-navbar {
+    padding: 14px 18px;
+  }
+
+  .ep-reg-nav-right {
+    gap: 10px;
+  }
+
+  .ep-reg-session-pill {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .ep-reg-content-container {
+    padding: 24px 14px;
+  }
+
+  .ep-reg-card-body {
+    padding: 26px 20px 20px 20px;
+  }
+
+  .ep-reg-title {
+    font-size: 24px;
+  }
+
+  .ep-reg-subtitle {
+    font-size: 12px;
+    margin-bottom: 22px;
+  }
+
+  .ep-reg-step-divider {
+    width: 36px;
+    margin: 0 8px;
+  }
+
+  .ep-reg-page-footer {
+    padding: 16px 18px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .ep-reg-footer-links {
+    justify-content: center;
+    gap: 14px;
+  }
+}

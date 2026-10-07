@@ -1,0 +1,1175 @@
+/* ==========================================================================
+   EduPulse School Management Portal - Login Stylesheet
+   Designed to precisely match Desktop (Image 1) & Mobile (Image 2) Mockups
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --ep-navy-bg: #0b1325;
+  --ep-navy-surface: #0f1a33;
+  --ep-navy-card: rgba(255, 255, 255, 0.04);
+  --ep-navy-border: rgba(255, 255, 255, 0.09);
+  --ep-text-white: #ffffff;
+  --ep-text-slate-100: #f1f5f9;
+  --ep-text-slate-300: #cbd5e1;
+  --ep-text-slate-400: #94a3b8;
+  --ep-text-slate-500: #64748b;
+  --ep-text-slate-700: #334155;
+  --ep-text-slate-900: #0f172a;
+  --ep-blue-primary: #2563eb;
+  --ep-blue-hover: #1d4ed8;
+  --ep-blue-btn: #3b5998;
+  --ep-cyan-accent: #38bdf8;
+  --ep-emerald: #10b981;
+  --ep-amber: #f59e0b;
+  --ep-font-serif: 'Playfair Display', Georgia, Cambria, serif;
+  --ep-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Base resets & typography */
+.ep-login-container {
+  font-family: var(--ep-font-sans);
+  color: var(--ep-text-slate-900);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ep-login-container *,
+.ep-login-container *::before,
+.ep-login-container *::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   DESKTOP SCREEN LAYOUT (Image 1) - Visible on >= 1024px
+   ========================================================================== */
+
+.ep-desktop-view {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+@media (max-width: 1023.98px) {
+  .ep-desktop-view {
+    display: none !important;
+  }
+}
+
+/* Left Hero Panel (Dark Collegiate Slate) */
+.ep-hero-panel {
+  flex: 1.15;
+  background: linear-gradient(175deg, #0d1527 0%, #090e1b 100%);
+  color: #ffffff;
+  padding: 44px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ep-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+}
+
+.ep-operational-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #e2e8f0;
+}
+
+.ep-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--ep-emerald);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  display: inline-block;
+  animation: epPulse 2.5s infinite;
+}
+
+@keyframes epPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.ep-term-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ep-text-slate-400);
+  text-transform: uppercase;
+}
+
+.ep-hero-headline-group {
+  margin-bottom: 28px;
+}
+
+.ep-hero-overline {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--ep-cyan-accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.ep-hero-title {
+  font-family: var(--ep-font-serif);
+  font-size: 38px;
+  line-height: 1.18;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.01em;
+}
+
+.ep-hero-description {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ep-text-slate-400);
+  margin: 0;
+  max-width: 540px;
+}
+
+/* Live Campus Notices Box */
+.ep-notices-container {
+  background: var(--ep-navy-card);
+  border: 1px solid var(--ep-navy-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(8px);
+}
+
+.ep-notices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 12px;
+}
+
+.ep-notices-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ep-text-slate-300);
+  text-transform: uppercase;
+}
+
+.ep-notices-updated {
+  font-size: 11px;
+  color: var(--ep-text-slate-500);
+  font-weight: 500;
+}
+
+.ep-notice-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ep-notice-item:last-child {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.ep-notice-icon {
+  margin-top: 2px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ep-notice-icon.yellow { color: var(--ep-amber); }
+.ep-notice-icon.blue { color: var(--ep-cyan-accent); }
+.ep-notice-icon.green { color: var(--ep-emerald); }
+
+.ep-notice-content {
+  flex: 1;
+}
+
+.ep-notice-headline {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ep-text-slate-100);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.ep-notice-subtext {
+  font-size: 11.5px;
+  color: var(--ep-text-slate-400);
+  line-height: 1.4;
+}
+
+/* Feature 3-Grid */
+.ep-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ep-feature-card {
+  background: var(--ep-navy-card);
+  border: 1px solid var(--ep-navy-border);
+  border-radius: 12px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-feature-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--ep-cyan-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.ep-feature-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.ep-feature-desc {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ep-text-slate-400);
+}
+
+/* Dean Quote Card */
+.ep-dean-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ep-navy-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ep-dean-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #1e293b;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ep-dean-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ep-dean-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 20px;
+}
+
+.ep-dean-quote-text {
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ep-text-slate-100);
+  line-height: 1.45;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.ep-dean-quote-author {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--ep-cyan-accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+
+/* ==========================================================================
+   DESKTOP RIGHT AUTH PANEL (Image 1)
+   ========================================================================== */
+
+.ep-auth-panel {
+  flex: 0.85;
+  background: #ffffff;
+  padding: 48px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.ep-auth-inner {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Brand Header */
+.ep-auth-brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.ep-brand-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ep-brand-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--ep-blue-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+.ep-brand-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ep-text-slate-900);
+  line-height: 1.2;
+}
+
+.ep-brand-sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ep-text-slate-500);
+  text-transform: uppercase;
+}
+
+.ep-portal-version-pill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ep-text-slate-500);
+  letter-spacing: 0.06em;
+}
+
+/* Sign In Headline */
+.ep-auth-title {
+  font-family: var(--ep-font-serif);
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--ep-text-slate-900);
+  margin: 0 0 6px 0;
+  line-height: 1.25;
+}
+
+.ep-auth-subtitle {
+  font-size: 13px;
+  color: var(--ep-text-slate-500);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+/* Role Switcher Tabs (Desktop) */
+.ep-role-tabs-bar {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 3px;
+}
+
+.ep-role-tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--ep-text-slate-500);
+  font-family: var(--ep-font-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 7px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.ep-role-tab-btn:hover {
+  color: var(--ep-text-slate-900);
+}
+
+.ep-role-tab-btn.active {
+  background: #ffffff;
+  color: var(--ep-text-slate-900);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+/* Inputs & Form Fields */
+.ep-form-group {
+  margin-bottom: 18px;
+}
+
+.ep-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.ep-form-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ep-text-slate-700);
+}
+
+.ep-forgot-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ep-blue-primary);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.ep-forgot-link:hover {
+  text-decoration: underline;
+}
+
+.ep-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  height: 44px;
+  padding: 0 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ep-input-wrapper:focus-within {
+  border-color: var(--ep-blue-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.ep-input-prefix {
+  color: #94a3b8;
+  font-size: 15px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ep-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--ep-font-sans);
+  font-size: 13.5px;
+  color: var(--ep-text-slate-900);
+}
+
+.ep-input-field::placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.ep-input-suffix-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.ep-input-suffix-btn:hover {
+  color: var(--ep-text-slate-700);
+}
+
+/* Primary Action Buttons */
+.ep-btn-desktop-primary {
+  width: 100%;
+  height: 44px;
+  background-color: #09090b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--ep-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 6px;
+}
+
+.ep-btn-desktop-primary:hover {
+  background-color: #18181b;
+}
+
+.ep-btn-desktop-primary:active {
+  transform: scale(0.99);
+}
+
+.ep-btn-desktop-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Divider & SSO */
+.ep-sso-divider {
+  display: flex;
+  align-items: center;
+  margin: 22px 0 16px 0;
+  text-align: center;
+}
+
+.ep-sso-divider::before,
+.ep-sso-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ep-sso-divider span {
+  padding: 0 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ep-text-slate-500);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ep-sso-divider span:hover {
+  color: var(--ep-blue-primary);
+}
+
+.ep-register-row {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ep-text-slate-500);
+  margin-bottom: 24px;
+}
+
+.ep-register-row a {
+  color: var(--ep-blue-primary);
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.ep-register-row a:hover {
+  text-decoration: underline;
+}
+
+/* Institutional Help Desk Box (Desktop) */
+.ep-helpdesk-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.ep-helpdesk-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: var(--ep-blue-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.ep-helpdesk-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ep-text-slate-700);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.ep-helpdesk-text {
+  font-size: 12px;
+  color: var(--ep-text-slate-500);
+  line-height: 1.4;
+}
+
+.ep-helpdesk-text a {
+  color: var(--ep-text-slate-700);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.ep-helpdesk-text a:hover {
+  color: var(--ep-blue-primary);
+}
+
+/* Desktop Security Footer */
+.ep-compliance-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 11px;
+  color: var(--ep-text-slate-500);
+}
+
+.ep-compliance-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ep-compliance-item svg {
+  color: var(--ep-emerald);
+}
+
+.ep-compliance-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ep-emerald);
+  display: inline-block;
+}
+
+
+/* ==========================================================================
+   MOBILE SCREEN LAYOUT (Image 2) - Visible on < 1024px
+   ========================================================================== */
+
+.ep-mobile-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f4f6fa;
+  padding: 12px 14px 28px 14px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .ep-mobile-view {
+    display: none !important;
+  }
+}
+
+.ep-mobile-inner {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Mobile Header Bar */
+.ep-mobile-appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 10px 4px;
+}
+
+.ep-mobile-appbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ep-mobile-appbar-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ep-mobile-appbar-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ep-text-slate-900);
+  line-height: 1.2;
+}
+
+.ep-mobile-appbar-sub {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ep-text-slate-500);
+  text-transform: uppercase;
+}
+
+.ep-mobile-appbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ep-mobile-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: var(--ep-text-slate-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ep-mobile-icon-btn.dark {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+}
+
+/* Card 1: Welcome Back Card */
+.ep-mobile-welcome-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #eef2f6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ep-mobile-academic-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.ep-mobile-welcome-title {
+  font-family: var(--ep-font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ep-text-slate-900);
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.ep-mobile-welcome-sub {
+  font-size: 12.5px;
+  color: var(--ep-text-slate-500);
+  margin: 0;
+  line-height: 1.45;
+  max-width: 280px;
+}
+
+.ep-mobile-cap-graphic {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  background: #eff6ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  font-size: 26px;
+}
+
+/* Card 2: Main Login Form Card */
+.ep-mobile-form-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #eef2f6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 18px;
+}
+
+.ep-mobile-role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ep-mobile-role-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ep-text-slate-700);
+  text-transform: uppercase;
+}
+
+.ep-mobile-active-role-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ep-blue-primary);
+}
+
+/* Horizontal Role Cards Scroll */
+.ep-mobile-roles-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.ep-mobile-roles-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.ep-mobile-roles-scroll::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.ep-mobile-role-card {
+  flex: 0 0 auto;
+  min-width: 68px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.ep-mobile-role-card:hover {
+  border-color: #cbd5e1;
+}
+
+.ep-mobile-role-card.active {
+  border: 1.5px solid var(--ep-blue-primary);
+  background: #eff6ff;
+}
+
+.ep-mobile-role-card-icon {
+  font-size: 18px;
+  color: var(--ep-text-slate-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ep-mobile-role-card.active .ep-mobile-role-card-icon {
+  color: var(--ep-blue-primary);
+}
+
+.ep-mobile-role-card-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ep-text-slate-700);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ep-mobile-role-card.active .ep-mobile-role-card-name {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+/* Mobile Inputs */
+.ep-mobile-input-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.ep-mobile-input-box:focus-within {
+  border-color: var(--ep-blue-primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ep-input-hint-right {
+  font-size: 11px;
+  color: var(--ep-text-slate-400);
+  font-weight: 500;
+}
+
+/* Mobile Button (Royal Blue matching Image 2) */
+.ep-btn-mobile-primary {
+  width: 100%;
+  height: 46px;
+  background-color: #3b5998;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--ep-font-sans);
+  font-size: 14.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}
+
+.ep-btn-mobile-primary:hover {
+  background-color: #2f487e;
+}
+
+.ep-btn-mobile-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Card 3: Academic Bulletin Card */
+.ep-bulletin-card {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.ep-bulletin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ep-bulletin-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ep-bulletin-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.ep-bulletin-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ep-text-slate-900);
+}
+
+.ep-bulletin-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ep-blue-primary);
+}
+
+.ep-bulletin-text {
+  font-size: 11.5px;
+  color: var(--ep-text-slate-700);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Card 4: Registrar & Records Division Card */
+.ep-registrar-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.ep-registrar-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ep-text-slate-500);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.ep-registrar-subtitle {
+  font-size: 12px;
+  color: var(--ep-text-slate-700);
+  margin-bottom: 10px;
+}
+
+.ep-registrar-contacts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ep-text-slate-700);
+}
+
+.ep-registrar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1e293b;
+  text-decoration: none;
+}
+
+.ep-registrar-item:hover {
+  color: var(--ep-blue-primary);
+}
+
+.ep-registrar-item svg {
+  color: var(--ep-blue-primary);
+}
+
+.ep-registrar-sep {
+  color: var(--ep-text-slate-400);
+}
+
+/* Mobile Footer */
+.ep-mobile-footer {
+  text-align: center;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ep-mobile-security-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ep-text-slate-500);
+}
+
+.ep-mobile-security-note svg {
+  color: var(--ep-emerald);
+}
+
+.ep-mobile-footer-links {
+  font-size: 11px;
+  color: var(--ep-text-slate-500);
+}
+
+.ep-mobile-footer-links a {
+  color: var(--ep-text-slate-500);
+  text-decoration: none;
+}
+
+.ep-mobile-footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* Alert styles */
+.ep-alert-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

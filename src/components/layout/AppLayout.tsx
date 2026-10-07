@@ -437,7 +437,7 @@ const AppLayout: React.FC = () => {
             </Dropdown>
         </Space>
         </Header>
-        <Content style={{ background: '#f9fafb', flex: 1, padding: 24 }}>
+        <Content style={{ background: '#f9fafb', flex: 1, padding: isMobile ? '8px 6px' : 24, overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
             {!isDashboard && isMobile && (
                 <Button
                     type="text"
