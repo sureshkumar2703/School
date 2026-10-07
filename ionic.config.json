@@ -1,0 +1,7 @@
+{
+  "name": "SMS",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
