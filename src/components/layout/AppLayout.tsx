@@ -337,6 +337,12 @@ const AppLayout: React.FC = () => {
     }
   }, [isMobile]);
 
+  useEffect(() => {
+    const handleToggle = () => setCollapsed(prev => !prev);
+    window.addEventListener('toggle-sidebar', handleToggle);
+    return () => window.removeEventListener('toggle-sidebar', handleToggle);
+  }, []);
+
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -397,47 +403,49 @@ const AppLayout: React.FC = () => {
             flexDirection: 'column'
         }}
       >
-        <Header
-        style={{
-            padding: '0 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            background: '#fff',
-            borderBottom: '1px solid #f0f0f0',
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-        }}
-        >
-        <Space align="center">
-            <Button
-            type="text"
-            icon={isMobile ? <MenuOutlined /> : (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />)}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-                fontSize: '16px',
-                width: 48,
-                height: 48,
-            }}
-            />
-            <Title level={4} style={{ margin: 0, fontSize: '20px' }}>
-            {pageTitle}
-            </Title>
-        </Space>
-        <Space align="center" size="large">
-            <Button type="text" shape="circle" icon={<BellOutlined style={{ fontSize: 20 }} />} />
-            <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-            <a onClick={(e) => e.preventDefault()} style={{ display: 'flex', alignItems: 'center' }}>
-                <Space>
-                <Avatar style={{ cursor: 'pointer' }} src={user?.photo_url} icon={<UserOutlined />} />
-                {!isMobile && <Typography.Text>{user?.email || user?.email || 'User'}</Typography.Text>}
-                </Space>
-            </a>
-            </Dropdown>
-        </Space>
-        </Header>
-        <Content style={{ background: '#f9fafb', flex: 1, padding: isMobile ? '8px 6px' : 24, overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
+        {currentPage !== 'admindashboard' && (
+          <Header
+          style={{
+              padding: '0 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: '#fff',
+              borderBottom: '1px solid #f0f0f0',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10,
+          }}
+          >
+          <Space align="center">
+              <Button
+              type="text"
+              icon={isMobile ? <MenuOutlined /> : (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />)}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                  fontSize: '16px',
+                  width: 48,
+                  height: 48,
+              }}
+              />
+              <Title level={4} style={{ margin: 0, fontSize: '20px' }}>
+              {pageTitle}
+              </Title>
+          </Space>
+          <Space align="center" size="large">
+              <Button type="text" shape="circle" icon={<BellOutlined style={{ fontSize: 20 }} />} />
+              <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+              <a onClick={(e) => e.preventDefault()} style={{ display: 'flex', alignItems: 'center' }}>
+                  <Space>
+                  <Avatar style={{ cursor: 'pointer' }} src={user?.photo_url} icon={<UserOutlined />} />
+                  {!isMobile && <Typography.Text>{user?.email || user?.email || 'User'}</Typography.Text>}
+                  </Space>
+              </a>
+              </Dropdown>
+          </Space>
+          </Header>
+        )}
+        <Content style={{ background: '#f8fafc', flex: 1, padding: currentPage === 'admindashboard' ? (isMobile ? '12px 10px' : '20px 24px') : (isMobile ? '8px 6px' : 24), overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
             {!isDashboard && isMobile && (
                 <Button
                     type="text"

@@ -1,0 +1,666 @@
+/* Admin Dashboard Reference Design Styles */
+
+.admin-dashboard-container {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #0F172A;
+  background-color: #F8FAFC;
+  min-height: 100%;
+}
+
+/* Header Bar */
+.admin-top-header {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: -20px -24px 24px -24px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.admin-header-subtitle {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quick-actions-btn {
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  height: 36px !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 14px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.quick-actions-btn:hover {
+  background-color: #0F172A !important;
+  transform: translateY(-1px);
+}
+
+.term-badge {
+  border: 1px solid #CBD5E1;
+  background-color: #FFFFFF;
+  color: #475569;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.admin-icon-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #475569 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #FFFFFF !important;
+  transition: all 0.2s ease;
+}
+
+.admin-icon-btn:hover {
+  background-color: #F1F5F9 !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+.admin-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 24px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-profile-pill:hover {
+  background: #F1F5F9;
+}
+
+/* Campus Hero Showcase Card */
+.campus-showcase-card {
+  position: relative;
+  width: 100%;
+  height: 290px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.12);
+  background-size: cover;
+  background-position: center 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.campus-showcase-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.15) 45%, rgba(15, 23, 42, 0.9) 100%);
+  pointer-events: none;
+}
+
+.campus-showcase-top {
+  position: relative;
+  z-index: 2;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0F172A;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.glass-btn-white {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #0F172A !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  height: 34px !important;
+  padding: 0 16px !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glass-btn-white:hover {
+  background: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+.glass-btn-blue {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  height: 34px !important;
+  padding: 0 18px !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.glass-btn-blue:hover {
+  background: #1D4ED8 !important;
+  transform: translateY(-1px);
+}
+
+.campus-showcase-bottom {
+  position: relative;
+  z-index: 2;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.accreditation-tag {
+  color: #38BDF8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.campus-title {
+  color: #FFFFFF;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.campus-meta {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.carousel-indicators {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.carousel-dash {
+  width: 22px;
+  height: 4px;
+  border-radius: 4px;
+  background: #FFFFFF;
+}
+
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* Stat Cards */
+.modern-stat-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  height: 100%;
+}
+
+.modern-stat-card:hover {
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+  border-color: #CBD5E1;
+}
+
+.stat-icon-squircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-info-wrap {
+  flex: 1;
+  margin: 0 14px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.stat-subtext {
+  font-size: 11.5px;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-badge-box {
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
+  border-radius: 6px;
+  padding: 3px 8px;
+  text-align: center;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.stat-badge-pill {
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Common Section Cards */
+.dashboard-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.card-title-main {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.card-subtitle-main {
+  font-size: 12.5px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+/* Donut Chart Wrapper */
+.gender-chart-wrapper {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  margin: 0 auto;
+}
+
+.gender-chart-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.gender-chart-count {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1;
+}
+
+.gender-chart-sub {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94A3B8;
+  letter-spacing: 1px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.gender-legend-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 18px;
+  padding: 0 10px;
+}
+
+.gender-legend-item {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gender-ratio-banner {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+}
+
+/* Attendance Overview */
+.attendance-filter-select {
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+}
+
+.attendance-legend-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.attendance-legend-items {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.attendance-avg-badge {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.card-footer-action-row {
+  border-top: 1px solid #F1F5F9;
+  padding-top: 14px;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.live-green-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.card-link-action {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #2563EB;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.card-link-action:hover {
+  color: #1D4ED8;
+  transform: translateX(2px);
+}
+
+/* Event Board */
+.event-board-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.event-board-item:last-child {
+  border-bottom: none;
+}
+
+.event-date-box {
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+  min-width: 52px;
+  flex-shrink: 0;
+  line-height: 1.1;
+}
+
+.event-item-content {
+  flex: 1;
+}
+
+.event-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.event-item-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.event-item-desc {
+  font-size: 12.5px;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}
+
+.event-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.notice-strip-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Event Calendar */
+.calendar-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.calendar-month-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 4px;
+}
+
+.calendar-weekday {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94A3B8;
+  padding: 6px 0;
+}
+
+.calendar-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #1E293B;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calendar-cell:hover:not(.empty):not(.selected) {
+  background: #F1F5F9;
+}
+
+.calendar-cell.muted {
+  color: #CBD5E1;
+}
+
+.calendar-cell.selected {
+  background: #1E293B;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.calendar-dot-marker {
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #2563EB;
+}
+
+.calendar-cell.selected .calendar-dot-marker {
+  background: #60A5FA;
+}
+
+@media (max-width: 768px) {
+  .admin-top-header {
+    margin: -12px -10px 16px -10px;
+    padding: 10px 14px;
+  }
+  
+  .campus-showcase-card {
+    height: auto;
+    min-height: 260px;
+  }
+  
+  .campus-title {
+    font-size: 20px;
+  }
+  
+  .stat-value {
+    font-size: 22px;
+  }
+}
