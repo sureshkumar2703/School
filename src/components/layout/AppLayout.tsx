@@ -364,6 +364,7 @@ const AppLayout: React.FC = () => {
   };
 
   const isDashboard = currentPage.endsWith('dashboard');
+  const hasCustomHeader = currentPage === 'admindashboard' || currentPage === 'staffdashboard';
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -403,7 +404,7 @@ const AppLayout: React.FC = () => {
             flexDirection: 'column'
         }}
       >
-        {currentPage !== 'admindashboard' && (
+        {!hasCustomHeader && (
           <Header
           style={{
               padding: '0 24px',
@@ -445,17 +446,7 @@ const AppLayout: React.FC = () => {
           </Space>
           </Header>
         )}
-        <Content style={{ background: '#f8fafc', flex: 1, padding: currentPage === 'admindashboard' ? (isMobile ? '12px 10px' : '20px 24px') : (isMobile ? '8px 6px' : 24), overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
-            {!isDashboard && isMobile && (
-                <Button
-                    type="text"
-                    icon={<ArrowLeftOutlined />}
-                    onClick={handleBack}
-                    style={{ marginBottom: 16 }}
-                >
-                    Back
-                </Button>
-            )}
+        <Content style={{ background: '#f8fafc', flex: 1, padding: hasCustomHeader ? (isMobile ? '12px 10px' : '20px 24px') : (isMobile ? '8px 6px' : 24), overflowX: 'hidden', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
             {ComponentToRender}
         </Content>
       </Layout>
