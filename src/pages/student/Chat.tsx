@@ -48,6 +48,39 @@ const StudentChat: React.FC = () => {
     const [isReceiverOnline, setIsReceiverOnline] = useState(false);
 
 
+    const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+
+    // Presence channel for real-time online/offline tracking
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const orgKey = user.organization_key || 'global';
+        const presenceChannel = supabase.channel(`school-presence-${orgKey}`, {
+            config: { presence: { key: user.id } },
+        });
+
+        presenceChannel
+            .on('presence', { event: 'sync' }, () => {
+                const state = presenceChannel.presenceState();
+                const onlineIds = new Set(Object.keys(state));
+                setOnlineUserIds(onlineIds);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await presenceChannel.track({
+                        user_id: user.id,
+                        user_name: user.full_name,
+                        role: user.role,
+                        online_at: new Date().toISOString(),
+                    });
+                }
+            });
+
+        return () => {
+            supabase.removeChannel(presenceChannel);
+        };
+    }, [user?.id, user?.organization_key, user?.full_name, user?.role]);
+
     useEffect(() => {
         const fetchRecentChats = async () => {
             if (!user?.id) {
@@ -90,6 +123,7 @@ const StudentChat: React.FC = () => {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
 
 
     useEffect(() => {
@@ -141,11 +175,6 @@ const StudentChat: React.FC = () => {
 
         fetchMessages();
 
-        // Simulate receiver's online status
-        const onlineInterval = setInterval(() => {
-            setIsReceiverOnline(Math.random() > 0.3); // 70% chance of being "online"
-        }, 5000);
-
         const channel = supabase.channel(`chat:student-${user.id}-teacher-${selectedTeacher.teacher_id}`)
             .on('postgres_changes', {
                 event: '*',
@@ -158,10 +187,16 @@ const StudentChat: React.FC = () => {
             .subscribe();
 
         return () => {
-            clearInterval(onlineInterval);
             supabase.removeChannel(channel);
         };
     }, [isChatModalVisible, selectedTeacher, user?.id, user?.register_no]);
+
+    useEffect(() => {
+        if (selectedTeacher) {
+            setIsReceiverOnline(onlineUserIds.has(selectedTeacher.teacher_id));
+        }
+    }, [onlineUserIds, selectedTeacher]);
+
 
     const handleTeacherClick = (teacher: TeacherContact) => {
         setSelectedTeacher(teacher);
@@ -239,7 +274,7 @@ const StudentChat: React.FC = () => {
         if (status === 'Completed') {
              return <><CheckOutlined style={{ color: '#53bdeb', marginLeft: 4 }} /><CheckOutlined style={{ color: '#53bdeb', marginLeft: -8, position: 'relative', left: '4px' }} /></>;
         }
-        if (status === 'Progress') {
+        if (status === 'Progress' || isReceiverOnline) {
             return <><CheckOutlined style={{ marginLeft: 4 }} /><CheckOutlined style={{ marginLeft: -8, position: 'relative', left: '4px' }} /></>;
         }
         return <CheckOutlined style={{ color: 'gray', marginLeft: 4 }} />;

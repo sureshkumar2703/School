@@ -5,6 +5,11 @@ export interface ChatStudent {
   id: string;
   full_name: string;
   phone?: string;
+  photo_url?: string;
+  unread_count?: number;
+  last_message?: string;
+  last_message_time?: string;
+  last_message_date?: string;
 }
 
 export interface FetchStudentsPayload {
@@ -16,12 +21,14 @@ export interface FetchStudentsPayload {
 
 interface ChatState {
   students: ChatStudent[];
+  unreadCount: number;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: ChatState = {
   students: [],
+  unreadCount: 0,
   loading: false,
   error: null,
 };
@@ -43,6 +50,11 @@ const chatSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    setUnreadCount: (state, action: PayloadAction<number>) => {
+      if (state.unreadCount !== action.payload) {
+        state.unreadCount = action.payload;
+      }
+    },
   },
 });
 
@@ -50,6 +62,8 @@ export const {
   fetchStudentsForClassRequest,
   fetchStudentsForClassSuccess,
   fetchStudentsForClassFailure,
+  setUnreadCount,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
+
