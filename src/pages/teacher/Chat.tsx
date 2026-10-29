@@ -19,6 +19,7 @@ import {
   Empty,
   Space,
   Grid,
+  Card,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -34,6 +35,10 @@ import {
   ClockCircleOutlined,
   WechatOutlined,
   UserOutlined,
+  TeamOutlined,
+  CalendarOutlined,
+  CheckSquareOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 import type { RootState, AppDispatch } from '../../store/store';
 import { fetchTeacherDashboardDataRequest } from '../../store/features/teacher-dashboard/teacherDashboardSlice';
@@ -42,6 +47,7 @@ import {
   setUnreadCount,
   type ChatStudent,
 } from '../../store/features/chat/chatSlice';
+import { setCurrentPage } from '../../store/features/navigation/navigationSlice';
 import { supabase } from '../../service/supabaseClient';
 import dayjs from 'dayjs';
 import isToday from 'dayjs/plugin/isToday';
@@ -604,6 +610,10 @@ const Chat: React.FC = () => {
     setSelectedStudentId(null);
   };
 
+  const handleCloseChatPage = () => {
+    dispatch(setCurrentPage('staffdashboard'));
+  };
+
   const handleOpenProfileModal = (student: EnhancedContact | null) => {
     if (student) {
       setProfileModalStudent(student);
@@ -781,18 +791,211 @@ const Chat: React.FC = () => {
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: isMobile ? 'calc(100vh - 90px)' : 'calc(100vh - 125px)',
-        minHeight: '560px',
-        background: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-        overflow: 'hidden',
+        padding: isMobile ? (selectedStudentId ? '0px' : '10px 8px') : '24px',
+        maxWidth: '1440px',
+        margin: '0 auto',
+        boxSizing: 'border-box',
+        width: '100%',
+        overflowX: 'hidden',
       }}
     >
-      <Row style={{ height: '100%', flex: 1, margin: 0 }}>
+      {/* 1. HERO BANNER (Hidden on mobile when conversation is open) */}
+      {(!isMobile || !selectedStudentId) && (
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #4f46e5 100%)',
+            borderRadius: isMobile ? '16px' : '22px',
+            padding: isMobile ? '16px 14px' : '24px 28px',
+            color: '#ffffff',
+            marginBottom: isMobile ? '14px' : '20px',
+            boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.25)',
+            position: 'relative',
+            overflow: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          {/* Decorative shapes */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '-50px',
+              top: '-50px',
+              width: '220px',
+              height: '220px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.08)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              right: '80px',
+              bottom: '-60px',
+              width: '160px',
+              height: '160px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.05)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          <Row gutter={[20, 16]} align="middle" justify="space-between">
+            <Col xs={24} md={15}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                <span
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(8px)',
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    letterSpacing: '0.4px',
+                    color: '#e0f2fe',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <WechatOutlined /> Realtime Student Messenger
+                </span>
+                <span
+                  style={{
+                    background: onlineUserIds.size > 0 ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
+                    color: '#ffffff',
+                    padding: '3px 10px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: '#ffffff',
+                      display: 'inline-block',
+                    }}
+                  />
+                  {onlineUserIds.size} Online Now
+                </span>
+              </div>
+
+              <h1
+                style={{
+                  fontSize: isMobile ? '20px' : '26px',
+                  fontWeight: 800,
+                  margin: '0 0 6px 0',
+                  color: '#ffffff',
+                  letterSpacing: '-0.5px',
+                  lineHeight: 1.25,
+                }}
+              >
+                Student Messages & Academic Doubts 💬
+              </h1>
+
+              <p
+                style={{
+                  color: 'rgba(255, 255, 255, 0.92)',
+                  fontSize: isMobile ? '12px' : '13.5px',
+                  margin: 0,
+                  lineHeight: 1.45,
+                }}
+              >
+                Communicate directly with your class students, clarify doubts, and monitor academic progress.
+              </p>
+            </Col>
+
+            {/* Quick Stats Pill & Close Chat Button */}
+            <Col xs={24} md={9}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.14)',
+                    backdropFilter: 'blur(12px)',
+                    borderRadius: '14px',
+                    padding: '10px 14px',
+                    border: '1px solid rgba(255, 255, 255, 0.22)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: '10.5px', color: '#cbd5e1', display: 'block' }}>Teacher Profile:</span>
+                    <span style={{ fontWeight: 800, fontSize: '12.5px', color: '#ffffff' }}>
+                      {user?.full_name || 'Teacher'} ({user?.staff_code || '--'})
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '10.5px', color: '#cbd5e1', display: 'block' }}>Unread Messages:</span>
+                    <Badge count={totalUnreadCount} overflowCount={99}>
+                      <Tag color={totalUnreadCount > 0 ? 'warning' : 'success'} style={{ margin: 0, fontWeight: 700, borderRadius: '6px' }}>
+                        {totalUnreadCount > 0 ? `${totalUnreadCount} New` : 'All Caught Up'}
+                      </Tag>
+                    </Badge>
+                  </div>
+                </div>
+
+                <Button
+                  icon={<ArrowLeftOutlined />}
+                  onClick={handleCloseChatPage}
+                  style={{
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    background: 'rgba(255, 255, 255, 0.18)',
+                    borderColor: 'rgba(255, 255, 255, 0.35)',
+                    color: '#ffffff',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  Close Chat & Back to Dashboard
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </div>
+      )}
+
+      {/* 2. MAIN CHAT WORKSPACE */}
+      <Card
+        style={{
+          borderRadius: isMobile ? (selectedStudentId ? '0px' : '16px') : '20px',
+          border: isMobile && selectedStudentId ? 'none' : '1px solid #e2e8f0',
+          boxShadow: isMobile && selectedStudentId ? 'none' : '0 8px 30px rgba(15, 23, 42, 0.05)',
+          overflow: 'hidden',
+          background: '#ffffff',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            height: isMobile
+              ? selectedStudentId
+                ? 'calc(100vh - 64px)'
+                : 'calc(100vh - 280px)'
+              : '720px',
+            minHeight: isMobile ? (selectedStudentId ? '420px' : '480px') : '520px',
+            position: 'relative',
+            width: '100%',
+            minWidth: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <Row style={{ height: '100%', width: '100%', margin: 0 }}>
         {/* ===================== LEFT PANE: CONTACTS & CHATS ===================== */}
         <Col
           xs={selectedStudentId ? 0 : 24}
@@ -1415,13 +1618,23 @@ const Chat: React.FC = () => {
                     />
                   </Tooltip>
 
-                  <Tooltip title="Close chat">
+                  <Tooltip title="Close active chat">
                     <Button
-                      type="text"
-                      shape="circle"
-                      icon={<CloseOutlined style={{ fontSize: 16, color: '#64748b' }} />}
+                      size="small"
+                      danger
+                      icon={<CloseOutlined />}
                       onClick={handleCloseChat}
-                    />
+                      style={{
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        fontSize: isMobile ? 11 : 12,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      {isMobile ? 'Close' : 'Close Chat'}
+                    </Button>
                   </Tooltip>
                 </Space>
               </div>
@@ -1618,48 +1831,66 @@ const Chat: React.FC = () => {
               {/* Input Area */}
               <div
                 style={{
-                  padding: '14px 20px',
+                  padding: isMobile ? '8px 10px' : '12px 16px',
                   background: '#ffffff',
                   borderTop: '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  minWidth: 0,
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <Input.TextArea
-                    placeholder="Type a message... (Press Enter to send, Shift+Enter for newline)"
-                    autoSize={{ minRows: 1, maxRows: 4 }}
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    disabled={sending}
-                    style={{
-                      borderRadius: '12px',
-                      padding: '8px 14px',
-                      fontSize: 14,
-                      resize: 'none',
-                    }}
-                  />
-                  <Button
-                    type="primary"
-                    shape="circle"
-                    size="large"
-                    icon={<SendOutlined style={{ fontSize: 16 }} />}
-                    loading={sending}
-                    onClick={() => handleSendMessage()}
-                    disabled={!newMessage.trim() || sending}
-                    style={{
-                      width: 44,
-                      height: 44,
-                      flexShrink: 0,
-                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
-                    }}
-                  />
-                </div>
+                <Input.TextArea
+                  placeholder={isMobile ? `Message ${selectedStudent.full_name}...` : `Message ${selectedStudent.full_name}... (Press Enter to Send)`}
+                  autoSize={{ minRows: 1, maxRows: 3 }}
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  disabled={sending}
+                  style={{
+                    flex: '1 1 auto',
+                    minWidth: 0,
+                    width: '100%',
+                    borderRadius: '12px',
+                    padding: isMobile ? '6px 10px' : '8px 14px',
+                    fontSize: isMobile ? 13 : 13.5,
+                    border: '1px solid #cbd5e1',
+                    resize: 'none',
+                  }}
+                />
+                <Button
+                  type="primary"
+                  shape="circle"
+                  size={isMobile ? 'middle' : 'large'}
+                  icon={<SendOutlined style={{ fontSize: isMobile ? 14 : 16 }} />}
+                  loading={sending}
+                  onClick={() => handleSendMessage()}
+                  disabled={!newMessage.trim() || sending}
+                  style={{
+                    flexShrink: 0,
+                    width: isMobile ? 38 : 42,
+                    height: isMobile ? 38 : 42,
+                    minWidth: isMobile ? 38 : 42,
+                    background: newMessage.trim()
+                      ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
+                      : '#cbd5e1',
+                    border: 'none',
+                    boxShadow: newMessage.trim()
+                      ? '0 4px 12px rgba(37, 99, 235, 0.3)'
+                      : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                />
               </div>
             </>
           ) : (
@@ -1782,6 +2013,89 @@ const Chat: React.FC = () => {
           )}
         </Col>
       </Row>
+        </div>
+      </Card>
+
+      {/* 3. HELPER ACTION FOOTER (Hidden on mobile when conversation is active) */}
+      {(!isMobile || !selectedStudentId) && (
+        <div
+          style={{
+            marginTop: '20px',
+            display: 'flex',
+            alignItems: isMobile ? 'stretch' : 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '14px',
+            background: '#f8fafc',
+            padding: isMobile ? '14px' : '14px 18px',
+            borderRadius: '14px',
+            border: '1px solid #e2e8f0',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flex: isMobile ? '1 1 100%' : '1 1 280px', minWidth: 0 }}>
+            <BookOutlined style={{ color: '#2563eb', fontSize: '15px', marginTop: '2px', flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', color: '#475569', lineHeight: 1.5 }}>
+              Messages sent here are visible to students and archived for school academic audit.
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              width: isMobile ? '100%' : 'auto',
+              flexDirection: isMobile ? 'column' : 'row',
+              flexWrap: 'wrap',
+              flexShrink: 0,
+            }}
+          >
+            <Button
+              size={isMobile ? 'middle' : 'small'}
+              block={isMobile}
+              icon={<ArrowLeftOutlined />}
+              onClick={handleCloseChatPage}
+              style={{ borderRadius: '8px', fontWeight: 600 }}
+            >
+              Back to Dashboard
+            </Button>
+            <Button
+              size={isMobile ? 'middle' : 'small'}
+              block={isMobile}
+              icon={<TeamOutlined />}
+              onClick={() => dispatch(setCurrentPage('myclasses'))}
+              style={{ borderRadius: '8px', fontWeight: 600 }}
+            >
+              My Classes
+            </Button>
+            <Button
+              size={isMobile ? 'middle' : 'small'}
+              block={isMobile}
+              icon={<CalendarOutlined />}
+              onClick={() => dispatch(setCurrentPage('myclasstimetable'))}
+              style={{ borderRadius: '8px', fontWeight: 600 }}
+            >
+              Class Timetable
+            </Button>
+            <Button
+              size={isMobile ? 'middle' : 'small'}
+              block={isMobile}
+              type="primary"
+              icon={<CheckSquareOutlined />}
+              onClick={() => dispatch(setCurrentPage('studentattendance'))}
+              style={{
+                borderRadius: '8px',
+                fontWeight: 600,
+                background: '#2563eb',
+              }}
+            >
+              Student Attendance
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ===================== USER PROFILE MODAL ===================== */}
       <Modal
