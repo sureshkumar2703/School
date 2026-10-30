@@ -1090,7 +1090,7 @@ const HomeworkHistory: React.FC = () => {
     const error = homeworkError || reportsError;
 
     return (
-        <div className="min-h-screen bg-slate-50/70 p-3 sm:p-5 md:p-6 space-y-5">
+        <div className="min-h-screen bg-slate-50/70  space-y-5">
             {/* 1. Header Card with Navigation and Quick Actions */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 md:p-6 shadow-sm">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

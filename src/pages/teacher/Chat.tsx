@@ -208,28 +208,47 @@ const Chat: React.FC = () => {
       }
 
       try {
-        // 1. Fetch recent contacts from RPC
-        const { data: rpcData, error: rpcErr } = await supabase.rpc(
-          'get_teacher_recent_chats',
-          { p_teacher_id: user.id }
-        );
-        if (rpcErr) throw rpcErr;
+        // 1. Fetch recent contacts from RPC (graceful fallback if unavailable)
+        let rpcData: any[] = [];
+        try {
+          const { data, error: rpcErr } = await supabase.rpc(
+            'get_teacher_recent_chats',
+            { p_teacher_id: user.id }
+          );
+          if (!rpcErr && data && Array.isArray(data)) {
+            rpcData = data;
+          }
+        } catch (rpcCatch) {
+          console.warn('RPC get_teacher_recent_chats notice:', rpcCatch);
+        }
 
-        // 2. Fetch chats rows to extract latest message & unread count per student
-        const { data: chatRows, error: chatErr } = await supabase
-          .from('chats')
-          .select('student_id, student_name, date, messages')
-          .eq('teacher_id', user.id)
-          .order('date', { ascending: true });
+        // 2. Fetch all chats rows for this teacher
+        let chatRows: any[] = [];
+        try {
+          const { data, error: chatErr } = await supabase
+            .from('chats')
+            .select('*')
+            .or(`teacher_id.eq.${user.id}${user.staff_code ? `,teacher_id.eq.${user.staff_code}` : ''}`)
+            .order('date', { ascending: true });
 
-        if (chatErr && chatErr.code !== 'PGRST116') {
-          console.error('Error fetching chats data:', chatErr);
+          if (!chatErr && data) {
+            chatRows = data;
+          } else {
+            const { data: fallbackData } = await supabase
+              .from('chats')
+              .select('*')
+              .eq('teacher_id', user.id);
+            if (fallbackData) chatRows = fallbackData;
+          }
+        } catch (fetchErr) {
+          console.error('Error fetching chats data:', fetchErr);
         }
 
         // Build stats map per student
         const statsMap = new Map<
           string,
           {
+            studentId?: string;
             unreadCount: number;
             lastMessage?: string;
             lastMessageTime?: string;
@@ -240,81 +259,151 @@ const Chat: React.FC = () => {
         >();
 
         let totalTeacherUnread = 0;
+        const myIdentifier = user.staff_code || user.id;
 
-        if (chatRows) {
+        if (chatRows && chatRows.length > 0) {
           chatRows.forEach((row: any) => {
             const sId = row.student_id;
-            if (!statsMap.has(sId)) {
-              statsMap.set(sId, {
+            const sName = row.student_name;
+            const canonicalKey = sId || sName || 'unknown_student';
+
+            if (!statsMap.has(canonicalKey)) {
+              statsMap.set(canonicalKey, {
+                studentId: sId,
                 unreadCount: 0,
-                studentName: row.student_name,
+                studentName: sName,
               });
             }
-            const sStats = statsMap.get(sId)!;
+            const sStats = statsMap.get(canonicalKey)!;
 
-            if (Array.isArray(row.messages)) {
-              row.messages.forEach((msg: any) => {
-                const senderKey = Object.keys(msg)[0];
-                const senderData = msg[senderKey];
-                const isFromTeacher = senderKey === user.staff_code;
-
-                if (!isFromTeacher && senderData?.status !== 'Completed') {
-                  sStats.unreadCount += 1;
-                  totalTeacherUnread += 1;
+            let rawMessages = row.messages;
+            if (typeof rawMessages === 'string') {
+              try { rawMessages = JSON.parse(rawMessages); } catch (e) {}
+            }
+            if (Array.isArray(rawMessages)) {
+              rawMessages.forEach((rawMsg: any) => {
+                let msg = rawMsg;
+                if (typeof msg === 'string') {
+                  try { msg = JSON.parse(msg); } catch (e) {}
                 }
 
-                sStats.lastMessage = senderData?.message;
-                sStats.lastMessageTime = senderData?.time;
-                sStats.lastMessageDate = row.date;
-                sStats.lastMessageSender = isFromTeacher ? 'teacher' : 'student';
+                let msgText = '';
+                let msgTime = '';
+                let msgStatus = 'Pending';
+                let isFromTeacher = false;
+
+                if (typeof msg === 'string') {
+                  msgText = msg;
+                  isFromTeacher = false;
+                } else if (msg && typeof msg === 'object') {
+                  const keys = Object.keys(msg);
+                  if (keys.length === 1 && typeof msg[keys[0]] === 'object' && msg[keys[0]] !== null) {
+                    const senderKey = keys[0];
+                    const inner = msg[senderKey];
+                    isFromTeacher = senderKey === myIdentifier || 
+                                    senderKey === user.id || 
+                                    senderKey.toLowerCase().includes('staff');
+                    msgText = inner.message || inner.content || inner.text || '';
+                    msgTime = inner.time || inner.timestamp || '';
+                    msgStatus = inner.status || 'Pending';
+                  } else {
+                    const sender = String(msg.sender || msg.sender_id || msg.senderKey || msg.from || '');
+                    isFromTeacher = sender === myIdentifier || 
+                                    sender === user.id || 
+                                    msg.sender === 'teacher' || 
+                                    msg.role === 'teacher';
+                    msgText = msg.message || msg.content || msg.text || '';
+                    msgTime = msg.time || msg.timestamp || '';
+                    msgStatus = msg.status || 'Pending';
+                  }
+                }
+
+                if (msgText || msgTime) {
+                  if (!isFromTeacher && msgStatus !== 'Completed') {
+                    sStats.unreadCount += 1;
+                    totalTeacherUnread += 1;
+                  }
+                  sStats.lastMessage = msgText;
+                  sStats.lastMessageTime = msgTime;
+                  sStats.lastMessageDate = row.date;
+                  sStats.lastMessageSender = isFromTeacher ? 'teacher' : 'student';
+                }
               });
             }
           });
         }
 
-        // Update Redux total unread count for sidebar synchronization
-        dispatch(setUnreadCount(totalTeacherUnread));
-
         // Combine RPC contacts with stats
-        const contacts: EnhancedContact[] = (rpcData || []).map((d: any) => {
-          const stats = statsMap.get(d.student_id);
-          return {
-            id: d.student_id,
-            full_name: d.student_name,
-            phone: d.phone,
-            unread_count: stats?.unreadCount || 0,
-            last_message: stats?.lastMessage,
-            last_message_time: stats?.lastMessageTime,
-            last_message_date: stats?.lastMessageDate,
-            last_message_sender: stats?.lastMessageSender,
-          };
+        const contactsMap = new Map<string, EnhancedContact>();
+
+        // 1. Add all students from statsMap
+        statsMap.forEach((stats, cKey) => {
+          contactsMap.set(cKey, {
+            id: stats.studentId || cKey,
+            full_name: stats.studentName || 'Student',
+            unread_count: stats.unreadCount,
+            last_message: stats.lastMessage,
+            last_message_time: stats.lastMessageTime,
+            last_message_date: stats.lastMessageDate,
+            last_message_sender: stats.lastMessageSender,
+          });
         });
 
-        // Also include any students from chatRows not in rpcData
-        statsMap.forEach((stats, sId) => {
-          if (!contacts.some((c) => c.id === sId)) {
-            contacts.push({
-              id: sId,
-              full_name: stats.studentName || 'Student',
-              unread_count: stats.unreadCount,
-              last_message: stats.lastMessage,
-              last_message_time: stats.lastMessageTime,
-              last_message_date: stats.lastMessageDate,
-              last_message_sender: stats.lastMessageSender,
+        // 2. Add or merge any students from RPC data
+        (rpcData || []).forEach((d: any) => {
+          const rId = d.student_id || d.id;
+          const rName = d.student_name || d.full_name;
+          const cKey = rId || rName;
+          if (!cKey) return;
+
+          const existing = contactsMap.get(cKey) || (rId ? contactsMap.get(rId) : undefined);
+          if (existing) {
+            if (!existing.last_message && (d.last_message || d.message)) {
+              existing.last_message = d.last_message || d.message;
+            }
+            if (!existing.last_message_time && (d.last_message_time || d.time)) {
+              existing.last_message_time = d.last_message_time || d.time;
+            }
+            if (existing.unread_count === 0 && (d.unread_count || d.unreadCount)) {
+              existing.unread_count = d.unread_count || d.unreadCount || 0;
+            }
+            if (!existing.phone && d.phone) {
+              existing.phone = d.phone;
+            }
+          } else {
+            contactsMap.set(cKey, {
+              id: rId || cKey,
+              full_name: rName || 'Student',
+              phone: d.phone,
+              unread_count: d.unread_count || d.unreadCount || 0,
+              last_message: d.last_message || d.message,
+              last_message_time: d.last_message_time || d.time,
+              last_message_date: d.last_message_date,
+              last_message_sender: d.last_message_sender,
             });
           }
         });
+
+        const contacts = Array.from(contactsMap.values());
+
+        // Recalculate accurate total unread across all contacts
+        const calculatedTotalUnread = contacts.reduce((acc, c) => acc + (c.unread_count || 0), 0);
 
         // Sort by unread first, then by last message recency
         contacts.sort((a, b) => {
           if ((b.unread_count || 0) !== (a.unread_count || 0)) {
             return (b.unread_count || 0) - (a.unread_count || 0);
           }
-          return (b.last_message_date || '').localeCompare(a.last_message_date || '');
+          const dateCompare = (b.last_message_date || '').localeCompare(a.last_message_date || '');
+          if (dateCompare !== 0) return dateCompare;
+          return (b.last_message_time || '').localeCompare(a.last_message_time || '');
         });
 
         setRecentChatStudents(contacts);
         hasLoadedRecentsRef.current = true;
+
+        // Synchronize Redux store unread count with sidebar
+        dispatch(setUnreadCount(calculatedTotalUnread));
 
         // Fetch passport photos for these contacts
         const idsToFetch = contacts.map((c) => c.id);
@@ -381,8 +470,80 @@ const Chat: React.FC = () => {
         await supabase.rpc('mark_messages_as_read', {
           p_student_id: selectedStudentId,
           p_teacher_id: user.id,
-          p_reader_identifier: user.staff_code!,
+          p_reader_identifier: user.staff_code || user.id,
         });
+
+        // Direct fallback update to guarantee messages are marked Completed in chats table
+        try {
+          const { data: rows } = await supabase
+            .from('chats')
+            .select('*')
+            .or(`teacher_id.eq.${user.id}${user.staff_code ? `,teacher_id.eq.${user.staff_code}` : ''}`);
+
+          if (rows && rows.length > 0) {
+            const studentKeys = [
+              selectedStudentId,
+              selectedStudent?.id,
+            //  selectedStudent?.register_no,
+              (selectedStudent as any)?.roll_no,
+            ].filter(Boolean);
+
+            const targetRows = rows.filter((r: any) => {
+              if (studentKeys.includes(r.student_id)) return true;
+              if (r.student_name && selectedStudent?.full_name &&
+                  r.student_name.toLowerCase().trim() === selectedStudent.full_name.toLowerCase().trim()) {
+                return true;
+              }
+              return false;
+            });
+
+            for (const r of targetRows) {
+              let msgs = r.messages;
+              if (typeof msgs === 'string') {
+                try { msgs = JSON.parse(msgs); } catch (e) {}
+              }
+              if (!Array.isArray(msgs)) continue;
+              let changed = false;
+              const myIdentifier = user.staff_code || user.id;
+
+              const updated = msgs.map((m: any) => {
+                if (m && typeof m === 'object') {
+                  const keys = Object.keys(m);
+                  if (keys.length === 1 && typeof m[keys[0]] === 'object' && m[keys[0]] !== null) {
+                    const senderKey = keys[0];
+                    const isFromTeacher = senderKey === myIdentifier || senderKey === user.id;
+                    if (!isFromTeacher && m[senderKey]?.status !== 'Completed') {
+                      changed = true;
+                      return {
+                        [senderKey]: {
+                          ...m[senderKey],
+                          status: 'Completed',
+                        },
+                      };
+                    }
+                  } else {
+                    const sender = String(m.sender || m.sender_id || m.senderKey || '');
+                    const isFromTeacher = sender === myIdentifier || sender === user.id || m.sender === 'teacher';
+                    if (!isFromTeacher && m.status !== 'Completed') {
+                      changed = true;
+                      return {
+                        ...m,
+                        status: 'Completed',
+                      };
+                    }
+                  }
+                }
+                return m;
+              });
+
+              if (changed) {
+                await supabase.from('chats').update({ messages: updated }).eq('id', r.id);
+              }
+            }
+          }
+        } catch (directErr) {
+          console.error('Error updating read status in chats:', directErr);
+        }
 
         // Locally clear this student's unread badge
         setRecentChatStudents((prev) =>
@@ -401,38 +562,94 @@ const Chat: React.FC = () => {
       }
 
       try {
-        const { data, error } = await supabase
+        const { data: rawChats, error } = await supabase
           .from('chats')
-          .select('messages, date')
-          .eq('student_id', selectedStudentId)
-          .eq('teacher_id', user.id)
+          .select('*')
+          .or(`teacher_id.eq.${user.id}${user.staff_code ? `,teacher_id.eq.${user.staff_code}` : ''}`)
           .order('date', { ascending: true });
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching messages:', error);
-        } else if (data) {
+        } else if (rawChats) {
+          const studentKeys = [
+            selectedStudentId,
+            selectedStudent?.id,
+           // selectedStudent?.register_no,
+            (selectedStudent as any)?.roll_no,
+          ].filter(Boolean);
+
+          const relevantRows = rawChats.filter((r: any) => {
+            if (studentKeys.includes(r.student_id)) return true;
+            if (r.student_name && selectedStudent?.full_name &&
+                r.student_name.toLowerCase().trim() === selectedStudent.full_name.toLowerCase().trim()) {
+              return true;
+            }
+            return false;
+          });
+
           const allMessages: Message[] = [];
           let hasUnread = false;
+          const myIdentifier = user.staff_code || user.id;
 
-          data.forEach((chatDay: { messages: any[]; date: string }) => {
-            if (Array.isArray(chatDay.messages)) {
-              chatDay.messages.forEach((msg: any) => {
-                const senderKey = Object.keys(msg)[0];
-                const senderData = msg[senderKey];
-                const isStudent = senderKey !== user.staff_code;
-
-                if (isStudent && senderData?.status !== 'Completed') {
-                  hasUnread = true;
+          relevantRows.forEach((chatDay: any) => {
+            let msgs = chatDay.messages;
+            if (typeof msgs === 'string') {
+              try { msgs = JSON.parse(msgs); } catch (e) {}
+            }
+            if (Array.isArray(msgs)) {
+              msgs.forEach((rawMsg: any) => {
+                let msg = rawMsg;
+                if (typeof msg === 'string') {
+                  try { msg = JSON.parse(msg); } catch (e) {}
                 }
 
-                allMessages.push({
-                  id: senderData.id || `msg_${Math.random()}`,
-                  sender: isStudent ? 'student' : 'teacher',
-                  content: senderData.message,
-                  timestamp: senderData.time,
-                  status: senderData.status || 'Pending',
-                  date: chatDay.date,
-                });
+                let msgId = `msg_${Math.random()}`;
+                let msgText = '';
+                let msgTime = '';
+                let msgStatus: Message['status'] = 'Pending';
+                let isFromTeacher = false;
+
+                if (typeof msg === 'string') {
+                  msgText = msg;
+                } else if (msg && typeof msg === 'object') {
+                  const keys = Object.keys(msg);
+                  if (keys.length === 1 && typeof msg[keys[0]] === 'object' && msg[keys[0]] !== null) {
+                    const senderKey = keys[0];
+                    const inner = msg[senderKey];
+                    msgId = inner.id || msgId;
+                    isFromTeacher = senderKey === myIdentifier || 
+                                    senderKey === user.id || 
+                                    senderKey.toLowerCase().includes('staff');
+                    msgText = inner.message || inner.content || inner.text || '';
+                    msgTime = inner.time || inner.timestamp || '';
+                    msgStatus = inner.status || 'Pending';
+                  } else {
+                    msgId = msg.id || msgId;
+                    const sender = String(msg.sender || msg.sender_id || msg.senderKey || msg.from || '');
+                    isFromTeacher = sender === myIdentifier || 
+                                    sender === user.id || 
+                                    msg.sender === 'teacher' || 
+                                    msg.role === 'teacher';
+                    msgText = msg.message || msg.content || msg.text || '';
+                    msgTime = msg.time || msg.timestamp || '';
+                    msgStatus = msg.status || 'Pending';
+                  }
+                }
+
+                if (msgText || msgTime) {
+                  if (!isFromTeacher && msgStatus !== 'Completed') {
+                    hasUnread = true;
+                  }
+
+                  allMessages.push({
+                    id: msgId,
+                    sender: isFromTeacher ? 'teacher' : 'student',
+                    content: msgText,
+                    timestamp: msgTime,
+                    status: msgStatus,
+                    date: chatDay.date,
+                  });
+                }
               });
             }
           });
@@ -791,7 +1008,7 @@ const Chat: React.FC = () => {
   return (
     <div
       style={{
-        padding: isMobile ? (selectedStudentId ? '0px' : '10px 8px') : '24px',
+       // padding: isMobile ? (selectedStudentId ? '0px' : '10px 8px') : '24px',
         maxWidth: '1440px',
         margin: '0 auto',
         boxSizing: 'border-box',

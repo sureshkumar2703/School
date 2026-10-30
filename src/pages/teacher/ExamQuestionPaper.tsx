@@ -493,7 +493,7 @@ const ExamQuestionPaper: React.FC = () => {
     const partsCount = (allFormValues?.parts || []).filter(Boolean).length;
 
     return (
-        <div className="min-h-screen bg-slate-50/70 p-3 sm:p-5 md:p-6 space-y-5">
+        <div className="min-h-screen bg-slate-50/70  space-y-5">
             <style>{`
                 @media print {
                     body * {

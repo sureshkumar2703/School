@@ -62,6 +62,9 @@ export interface TeacherContact {
     unread_count: number;
     last_message: string | null;
     last_message_time: string | null;
+    last_message_date?: string | null;
+    last_message_sender?: 'teacher' | 'student';
+    staff_code?: string | null;
     department?: string | null;
     designation?: string | null;
     email?: string | null;
@@ -165,159 +168,263 @@ const StudentChat: React.FC = () => {
         }
 
         try {
-            // A. Fetch RPC data as base contact list (if available)
+            // A. Fetch all faculty members for this organization (provides full catalog of teacher profiles)
+            let facultyList: AllFacultyMember[] = allFaculty;
+            if (facultyList.length === 0 && user.organization_key) {
+                const { data: facData } = await supabase
+                    .from('teachers')
+                    .select('id, staff_code, full_name, mobile_number, photo_url, designation, department, email')
+                    .eq('organization_key', user.organization_key)
+                    .order('full_name', { ascending: true });
+                if (facData) {
+                    facultyList = facData;
+                    setAllFaculty(facData);
+                }
+            }
+
+            // Create quick lookup maps for faculty
+            const facultyById = new Map<string, AllFacultyMember>();
+            const facultyByStaffCode = new Map<string, AllFacultyMember>();
+            const facultyByName = new Map<string, AllFacultyMember>();
+
+            facultyList.forEach((f) => {
+                if (f.id) facultyById.set(f.id, f);
+                if (f.staff_code) facultyByStaffCode.set(f.staff_code, f);
+                if (f.full_name) facultyByName.set(f.full_name.toLowerCase().trim(), f);
+            });
+
+            // B. Fetch RPC data as base contact list (if available)
             let rpcTeachers: any[] = [];
             try {
                 const { data: rpcData, error: rpcError } = await supabase.rpc('get_student_recent_chats', {
                     p_student_id: user.id,
                 });
-                if (!rpcError && rpcData) {
+                if (!rpcError && rpcData && Array.isArray(rpcData)) {
                     rpcTeachers = rpcData;
                 }
             } catch (rpcErr) {
-                console.warn('RPC get_student_recent_chats failed or unavailable:', rpcErr);
+                console.warn('RPC get_student_recent_chats unavailable:', rpcErr);
             }
 
-            // B. Fetch all chats rows for this student to extract exact latest messages and unread counts
-            const { data: chatRows, error: chatError } = await supabase
-                .from('chats')
-                .select('id, teacher_id, teacher_name, date, messages')
-                .eq('student_id', user.id)
-                .order('date', { ascending: true });
+            // C. Fetch all chats rows for this student
+            let chatRows: any[] = [];
+            try {
+                const { data, error: chatError } = await supabase
+                    .from('chats')
+                    .select('*')
+                    .or(`student_id.eq.${user.id}${user.register_no ? `,student_id.eq.${user.register_no}` : ''}`)
+                    .order('date', { ascending: true });
 
-            if (chatError && chatError.code !== 'PGRST116') {
-                console.error('Error fetching student chats:', chatError);
+                if (!chatError && data) {
+                    chatRows = data;
+                } else {
+                    const { data: fallbackData } = await supabase
+                        .from('chats')
+                        .select('*')
+                        .eq('student_id', user.id);
+                    if (fallbackData) chatRows = fallbackData;
+                }
+            } catch (fetchErr) {
+                console.error('Error fetching chats rows:', fetchErr);
             }
 
-            // Map stats per teacher_id
+            // D. Map stats per canonical teacher ID
             const statsMap = new Map<string, {
+                canonicalId: string;
+                teacherName: string;
+                staffCode?: string;
+                photoUrl?: string | null;
+                phone?: string | null;
+                department?: string | null;
+                designation?: string | null;
+                email?: string | null;
                 unreadCount: number;
                 lastMessage?: string;
                 lastMessageTime?: string;
                 lastMessageDate?: string;
                 lastMessageSender?: 'teacher' | 'student';
-                teacherName?: string;
             }>();
 
             let totalStudentUnread = 0;
-            const myIdentifier = user.register_no;
+            const myIdentifier = user.register_no || user.id;
 
-            if (chatRows && chatRows.length > 0) {
+            if (chatRows.length > 0) {
                 chatRows.forEach((row: any) => {
-                    const tId = row.teacher_id;
-                    if (!tId) return;
+                    const rawTeacherId = row.teacher_id;
+                    const rawTeacherName = row.teacher_name;
 
-                    if (!statsMap.has(tId)) {
-                        statsMap.set(tId, {
+                    // Resolve faculty profile
+                    const matchedFaculty = 
+                        (rawTeacherId ? (facultyById.get(rawTeacherId) || facultyByStaffCode.get(rawTeacherId)) : undefined) ||
+                        (rawTeacherName ? facultyByName.get(rawTeacherName.toLowerCase().trim()) : undefined);
+
+                    const canonicalId = matchedFaculty?.id || rawTeacherId || rawTeacherName || 'unknown_faculty';
+                    const canonicalName = matchedFaculty?.full_name || rawTeacherName || 'Faculty';
+
+                    if (!statsMap.has(canonicalId)) {
+                        statsMap.set(canonicalId, {
+                            canonicalId,
+                            teacherName: canonicalName,
+                            staffCode: matchedFaculty?.staff_code || (rawTeacherId !== canonicalId ? rawTeacherId : undefined),
+                            photoUrl: matchedFaculty?.photo_url || null,
+                            phone: matchedFaculty?.mobile_number || null,
+                            department: matchedFaculty?.department || null,
+                            designation: matchedFaculty?.designation || null,
+                            email: matchedFaculty?.email || null,
                             unreadCount: 0,
-                            teacherName: row.teacher_name,
                         });
                     }
-                    const tStats = statsMap.get(tId)!;
+                    const tStats = statsMap.get(canonicalId)!;
 
-                    if (Array.isArray(row.messages)) {
-                        row.messages.forEach((msg: any) => {
-                            const senderKey = Object.keys(msg)[0];
-                            const senderData = msg[senderKey];
-                            if (!senderData) return;
-
-                            const isFromStudent = senderKey === myIdentifier;
-
-                            // If message is from teacher and not completed, count as unread for student
-                            if (!isFromStudent && senderData.status !== 'Completed') {
-                                tStats.unreadCount += 1;
-                                totalStudentUnread += 1;
+                    // Parse messages
+                    let rawMessages = row.messages;
+                    if (typeof rawMessages === 'string') {
+                        try { rawMessages = JSON.parse(rawMessages); } catch (e) {}
+                    }
+                    if (Array.isArray(rawMessages)) {
+                        rawMessages.forEach((rawMsg: any) => {
+                            let msg = rawMsg;
+                            if (typeof msg === 'string') {
+                                try { msg = JSON.parse(msg); } catch (e) {}
                             }
 
-                            // Overwrite with latest message
-                            tStats.lastMessage = senderData.message;
-                            tStats.lastMessageTime = senderData.time;
-                            tStats.lastMessageDate = row.date;
-                            tStats.lastMessageSender = isFromStudent ? 'student' : 'teacher';
+                            let msgText = '';
+                            let msgTime = '';
+                            let msgStatus = 'Pending';
+                            let isFromStudent = false;
+
+                            if (typeof msg === 'string') {
+                                msgText = msg;
+                                isFromStudent = false;
+                            } else if (msg && typeof msg === 'object') {
+                                const keys = Object.keys(msg);
+                                // Format 1: { [senderKey]: { message, time, status, id } }
+                                if (keys.length === 1 && typeof msg[keys[0]] === 'object' && msg[keys[0]] !== null) {
+                                    const senderKey = keys[0];
+                                    const inner = msg[senderKey];
+                                    isFromStudent = senderKey === myIdentifier || 
+                                                    senderKey === user.id || 
+                                                    senderKey === user.roll_no ||
+                                                    senderKey.toLowerCase().includes('student') ||
+                                                    senderKey.toLowerCase().includes('reg');
+                                    msgText = inner.message || inner.content || inner.text || '';
+                                    msgTime = inner.time || inner.timestamp || '';
+                                    msgStatus = inner.status || 'Pending';
+                                } else {
+                                    // Format 2: Direct object { sender, sender_id, message, content, text, time, status }
+                                    const senderId = String(msg.sender || msg.sender_id || msg.senderKey || msg.from || '');
+                                    isFromStudent = senderId === myIdentifier || 
+                                                    senderId === user.id || 
+                                                    senderId === user.roll_no ||
+                                                    msg.sender === 'student' || 
+                                                    msg.role === 'student';
+                                    msgText = msg.message || msg.content || msg.text || '';
+                                    msgTime = msg.time || msg.timestamp || '';
+                                    msgStatus = msg.status || 'Pending';
+                                }
+                            }
+
+                            if (msgText || msgTime) {
+                                if (!isFromStudent && msgStatus !== 'Completed') {
+                                    tStats.unreadCount += 1;
+                                    totalStudentUnread += 1;
+                                }
+                                tStats.lastMessage = msgText;
+                                tStats.lastMessageTime = msgTime;
+                                tStats.lastMessageDate = row.date;
+                                tStats.lastMessageSender = isFromStudent ? 'student' : 'teacher';
+                            }
                         });
                     }
                 });
             }
 
-            // C. Collect all teacher IDs to fetch profile details (photos, phone, etc.)
-            const teacherIds = new Set<string>();
-            rpcTeachers.forEach((t) => t.teacher_id && teacherIds.add(t.teacher_id));
-            statsMap.forEach((_, tId) => teacherIds.add(tId));
-
-            let teacherProfiles: Record<string, any> = {};
-            if (teacherIds.size > 0) {
-                const { data: profileData } = await supabase
-                    .from('teachers')
-                    .select('id, staff_code, full_name, mobile_number, photo_url, designation, department, email')
-                    .in('id', Array.from(teacherIds));
-
-                if (profileData) {
-                    profileData.forEach((p) => {
-                        teacherProfiles[p.id] = p;
-                    });
-                }
-            }
-
-            // D. Combine statsMap, RPC list & profiles
+            // E. Combine statsMap & RPC list
             const contactsMap = new Map<string, TeacherContact>();
 
-            // 1. Add all teachers who have exchanged messages
-            statsMap.forEach((stats, tId) => {
-                const profile = teacherProfiles[tId];
-                contactsMap.set(tId, {
-                    teacher_id: tId,
-                    teacher_name: profile?.full_name || stats.teacherName || 'Faculty',
-                    phone: profile?.mobile_number || null,
-                    photo_url: profile?.photo_url || null,
+            // 1. Add all teachers from statsMap
+            statsMap.forEach((stats, cId) => {
+                contactsMap.set(cId, {
+                    teacher_id: cId,
+                    teacher_name: stats.teacherName,
+                    staff_code: stats.staffCode || null,
+                    phone: stats.phone || null,
+                    photo_url: stats.photoUrl || null,
                     unread_count: stats.unreadCount,
-                    last_message: stats.lastMessageSender === 'student' ? `You: ${stats.lastMessage}` : (stats.lastMessage || null),
+                    last_message: stats.lastMessage
+                        ? (stats.lastMessageSender === 'student' ? `You: ${stats.lastMessage}` : stats.lastMessage)
+                        : null,
                     last_message_time: stats.lastMessageTime || null,
-                    department: profile?.department || null,
-                    designation: profile?.designation || null,
-                    email: profile?.email || null,
+                    last_message_date: stats.lastMessageDate || null,
+                    last_message_sender: stats.lastMessageSender,
+                    department: stats.department || null,
+                    designation: stats.designation || null,
+                    email: stats.email || null,
                 });
             });
 
-            // 2. Add any teachers from RPC that weren't in statsMap
+            // 2. Add or merge any teachers from RPC
             rpcTeachers.forEach((r: any) => {
-                const tId = r.teacher_id;
-                if (!tId) return;
+                const rId = r.teacher_id || r.id || r.staff_code;
+                const rName = r.teacher_name || r.full_name;
 
-                const profile = teacherProfiles[tId];
-                const stats = statsMap.get(tId);
+                const matchedFaculty = 
+                    (rId ? (facultyById.get(rId) || facultyByStaffCode.get(rId)) : undefined) ||
+                    (rName ? facultyByName.get(rName.toLowerCase().trim()) : undefined);
 
-                if (!contactsMap.has(tId)) {
-                    contactsMap.set(tId, {
-                        teacher_id: tId,
-                        teacher_name: r.teacher_name || profile?.full_name || 'Faculty',
-                        phone: r.phone || profile?.mobile_number || null,
-                        photo_url: r.photo_url || profile?.photo_url || null,
-                        unread_count: stats?.unreadCount || r.unread_count || 0,
-                        last_message: stats?.lastMessageSender === 'student'
-                            ? `You: ${stats.lastMessage}`
-                            : (stats?.lastMessage || r.last_message || null),
-                        last_message_time: stats?.lastMessageTime || r.last_message_time || null,
-                        department: profile?.department || null,
-                        designation: profile?.designation || null,
-                        email: profile?.email || null,
+                const cId = matchedFaculty?.id || rId || rName;
+                if (!cId) return;
+
+                const existing = contactsMap.get(cId);
+                if (existing) {
+                    if (!existing.last_message && (r.last_message || r.message)) {
+                        existing.last_message = r.last_message || r.message;
+                    }
+                    if (!existing.last_message_time && (r.last_message_time || r.time)) {
+                        existing.last_message_time = r.last_message_time || r.time;
+                    }
+                    if (existing.unread_count === 0 && (r.unread_count || r.unreadCount)) {
+                        existing.unread_count = r.unread_count || r.unreadCount || 0;
+                    }
+                    if (!existing.photo_url && (matchedFaculty?.photo_url || r.photo_url)) {
+                        existing.photo_url = matchedFaculty?.photo_url || r.photo_url;
+                    }
+                } else {
+                    contactsMap.set(cId, {
+                        teacher_id: cId,
+                        teacher_name: matchedFaculty?.full_name || rName || 'Faculty',
+                        staff_code: matchedFaculty?.staff_code || (rId !== cId ? rId : null),
+                        phone: matchedFaculty?.mobile_number || r.phone || null,
+                        photo_url: matchedFaculty?.photo_url || r.photo_url || null,
+                        unread_count: r.unread_count || r.unreadCount || 0,
+                        last_message: r.last_message || r.message || null,
+                        last_message_time: r.last_message_time || r.time || null,
+                        department: matchedFaculty?.department || null,
+                        designation: matchedFaculty?.designation || null,
+                        email: matchedFaculty?.email || null,
                     });
                 }
             });
 
             const mergedList = Array.from(contactsMap.values());
 
+            // Recalculate accurate total unread across all contacts
+            const calculatedTotalUnread = mergedList.reduce((acc, c) => acc + (c.unread_count || 0), 0);
+
             // Sort: contacts with unread messages first, then by last message recency
             mergedList.sort((a, b) => {
                 if (b.unread_count !== a.unread_count) {
                     return b.unread_count - a.unread_count;
                 }
-                return (b.last_message_time || '').localeCompare(a.last_message_time || '');
+                const timeA = a.last_message_time || '';
+                const timeB = b.last_message_time || '';
+                return timeB.localeCompare(timeA);
             });
 
             setTeachers(mergedList);
 
             // Synchronize Redux store unread count with sidebar
-            dispatch(setUnreadCount(totalStudentUnread));
+            dispatch(setUnreadCount(calculatedTotalUnread));
         } catch (err: any) {
             console.error('Error fetching recent chats:', err);
             setError(err.message);
@@ -335,7 +442,7 @@ const StudentChat: React.FC = () => {
                 .channel('student-chat-list')
                 .on(
                     'postgres_changes',
-                    { event: '*', schema: 'public', table: 'chats', filter: `student_id=eq.${user.id}` },
+                    { event: '*', schema: 'public', table: 'chats' },
                     fetchRecentChats
                 )
                 .subscribe();
@@ -378,7 +485,7 @@ const StudentChat: React.FC = () => {
 
     // 5. Fetch Messages & Realtime Subscription for Selected Teacher
     useEffect(() => {
-        if (!selectedTeacher || !user?.id || !user?.register_no) {
+        if (!selectedTeacher || !user?.id) {
             return;
         }
 
@@ -387,7 +494,7 @@ const StudentChat: React.FC = () => {
                 await supabase.rpc('mark_messages_as_read', {
                     p_student_id: user.id,
                     p_teacher_id: selectedTeacher.teacher_id,
-                    p_reader_identifier: user.register_no!,
+                    p_reader_identifier: user.register_no || user.id,
                 });
             } catch (err) {
                 console.warn('RPC mark_messages_as_read notice:', err);
@@ -397,24 +504,57 @@ const StudentChat: React.FC = () => {
             try {
                 const { data: rows } = await supabase
                     .from('chats')
-                    .select('id, messages')
-                    .eq('student_id', user.id)
-                    .eq('teacher_id', selectedTeacher.teacher_id);
+                    .select('*')
+                    .or(`student_id.eq.${user.id}${user.register_no ? `,student_id.eq.${user.register_no}` : ''}`);
 
                 if (rows && rows.length > 0) {
-                    for (const r of rows) {
-                        if (!Array.isArray(r.messages)) continue;
+                    const teacherKeys = [
+                        selectedTeacher.teacher_id,
+                        (selectedTeacher as any).staff_code,
+                        selectedTeacher.teacher_name,
+                    ].filter(Boolean);
+
+                    const targetRows = rows.filter((r: any) => {
+                        return teacherKeys.includes(r.teacher_id) ||
+                            (r.teacher_name && selectedTeacher.teacher_name && 
+                             r.teacher_name.toLowerCase().trim() === selectedTeacher.teacher_name.toLowerCase().trim());
+                    });
+
+                    for (const r of targetRows) {
+                        let msgs = r.messages;
+                        if (typeof msgs === 'string') {
+                            try { msgs = JSON.parse(msgs); } catch (e) {}
+                        }
+                        if (!Array.isArray(msgs)) continue;
                         let changed = false;
-                        const updated = r.messages.map((m: any) => {
-                            const senderKey = Object.keys(m)[0];
-                            if (senderKey !== user.register_no && m[senderKey]?.status !== 'Completed') {
-                                changed = true;
-                                return {
-                                    [senderKey]: {
-                                        ...m[senderKey],
-                                        status: 'Completed',
-                                    },
-                                };
+                        const myIdentifier = user.register_no || user.id;
+
+                        const updated = msgs.map((m: any) => {
+                            if (m && typeof m === 'object') {
+                                const keys = Object.keys(m);
+                                if (keys.length === 1 && typeof m[keys[0]] === 'object' && m[keys[0]] !== null) {
+                                    const senderKey = keys[0];
+                                    const isFromStudent = senderKey === myIdentifier || senderKey === user.id || senderKey === user.roll_no;
+                                    if (!isFromStudent && m[senderKey]?.status !== 'Completed') {
+                                        changed = true;
+                                        return {
+                                            [senderKey]: {
+                                                ...m[senderKey],
+                                                status: 'Completed',
+                                            },
+                                        };
+                                    }
+                                } else {
+                                    const sender = String(m.sender || m.sender_id || m.senderKey || '');
+                                    const isFromStudent = sender === myIdentifier || sender === user.id || m.sender === 'student';
+                                    if (!isFromStudent && m.status !== 'Completed') {
+                                        changed = true;
+                                        return {
+                                            ...m,
+                                            status: 'Completed',
+                                        };
+                                    }
+                                }
                             }
                             return m;
                         });
@@ -438,34 +578,95 @@ const StudentChat: React.FC = () => {
 
         const fetchMessages = async () => {
             try {
-                const { data, error: msgError } = await supabase
+                const { data: rawChats, error: msgError } = await supabase
                     .from('chats')
-                    .select('messages, date')
-                    .eq('student_id', user.id)
-                    .eq('teacher_id', selectedTeacher.teacher_id)
+                    .select('*')
+                    .or(`student_id.eq.${user.id}${user.register_no ? `,student_id.eq.${user.register_no}` : ''}`)
                     .order('date', { ascending: true });
 
                 if (msgError && msgError.code !== 'PGRST116') {
                     console.error('Error fetching messages:', msgError);
-                } else if (data) {
+                } else if (rawChats) {
+                    const teacherKeys = [
+                        selectedTeacher.teacher_id,
+                        (selectedTeacher as any).staff_code,
+                        selectedTeacher.teacher_name,
+                    ].filter(Boolean);
+
+                    const relevantRows = rawChats.filter((r: any) => {
+                        if (teacherKeys.includes(r.teacher_id)) return true;
+                        if (r.teacher_name && selectedTeacher.teacher_name && 
+                            r.teacher_name.toLowerCase().trim() === selectedTeacher.teacher_name.toLowerCase().trim()) {
+                            return true;
+                        }
+                        return false;
+                    });
+
                     const allMessages: Message[] = [];
-                    data.forEach((chatDay: { messages: any[]; date: string }) => {
-                        if (Array.isArray(chatDay.messages)) {
-                            const formatted = chatDay.messages.map((msg: any) => {
-                                const senderId = Object.keys(msg)[0];
-                                const senderData = msg[senderId];
-                                return {
-                                    id: senderData.id,
-                                    sender: senderId === user.register_no ? 'student' : 'teacher',
-                                    content: senderData.message,
-                                    timestamp: senderData.time,
-                                    status: senderData.status || 'Pending',
-                                    date: chatDay.date,
-                                };
+                    const myIdentifier = user.register_no || user.id;
+
+                    relevantRows.forEach((chatDay: any) => {
+                        let msgs = chatDay.messages;
+                        if (typeof msgs === 'string') {
+                            try { msgs = JSON.parse(msgs); } catch (e) {}
+                        }
+                        if (Array.isArray(msgs)) {
+                            msgs.forEach((rawMsg: any) => {
+                                let msg = rawMsg;
+                                if (typeof msg === 'string') {
+                                    try { msg = JSON.parse(msg); } catch (e) {}
+                                }
+
+                                let msgId = `msg_${Math.random()}`;
+                                let msgText = '';
+                                let msgTime = '';
+                                let msgStatus: Message['status'] = 'Pending';
+                                let isFromStudent = false;
+
+                                if (typeof msg === 'string') {
+                                    msgText = msg;
+                                } else if (msg && typeof msg === 'object') {
+                                    const keys = Object.keys(msg);
+                                    if (keys.length === 1 && typeof msg[keys[0]] === 'object' && msg[keys[0]] !== null) {
+                                        const senderKey = keys[0];
+                                        const inner = msg[senderKey];
+                                        msgId = inner.id || msgId;
+                                        isFromStudent = senderKey === myIdentifier || 
+                                                        senderKey === user.id || 
+                                                        senderKey === user.roll_no ||
+                                                        senderKey.toLowerCase().includes('student') ||
+                                                        senderKey.toLowerCase().includes('reg');
+                                        msgText = inner.message || inner.content || inner.text || '';
+                                        msgTime = inner.time || inner.timestamp || '';
+                                        msgStatus = inner.status || 'Pending';
+                                    } else {
+                                        msgId = msg.id || msgId;
+                                        const sender = String(msg.sender || msg.sender_id || msg.senderKey || msg.from || '');
+                                        isFromStudent = sender === myIdentifier || 
+                                                        sender === user.id || 
+                                                        sender === user.roll_no ||
+                                                        msg.sender === 'student' || 
+                                                        msg.role === 'student';
+                                        msgText = msg.message || msg.content || msg.text || '';
+                                        msgTime = msg.time || msg.timestamp || '';
+                                        msgStatus = msg.status || 'Pending';
+                                    }
+                                }
+
+                                if (msgText || msgTime) {
+                                    allMessages.push({
+                                        id: msgId,
+                                        sender: isFromStudent ? 'student' : 'teacher',
+                                        content: msgText,
+                                        timestamp: msgTime,
+                                        status: msgStatus,
+                                        date: chatDay.date,
+                                    });
+                                }
                             });
-                            Array.prototype.push.apply(allMessages, formatted as any);
                         }
                     });
+
                     setMessages(allMessages);
                     markAsRead();
                 } else {
@@ -486,7 +687,6 @@ const StudentChat: React.FC = () => {
                     event: '*',
                     schema: 'public',
                     table: 'chats',
-                    filter: `student_id=eq.${user.id}`,
                 },
                 () => {
                     fetchMessages();
@@ -956,11 +1156,20 @@ const StudentChat: React.FC = () => {
                                                             cursor: 'pointer',
                                                             background: isSelected
                                                                 ? '#eff6ff'
+                                                                : teacher.unread_count > 0
+                                                                ? '#f0f9ff'
                                                                 : '#ffffff',
                                                             border: isSelected
                                                                 ? '1px solid #93c5fd'
+                                                                : teacher.unread_count > 0
+                                                                ? '1px solid #bfdbfe'
                                                                 : '1px solid #f1f5f9',
-                                                            boxShadow: isSelected
+                                                            borderLeft: isSelected
+                                                                ? '4px solid #1d4ed8'
+                                                                : teacher.unread_count > 0
+                                                                ? '4px solid #2563eb'
+                                                                : '4px solid transparent',
+                                                            boxShadow: isSelected || teacher.unread_count > 0
                                                                 ? '0 2px 8px rgba(37, 99, 235, 0.08)'
                                                                 : 'none',
                                                             transition: 'all 0.2s ease',

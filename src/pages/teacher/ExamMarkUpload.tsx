@@ -538,7 +538,7 @@ const ExamMarkUpload: React.FC = () => {
     const showStudentTable = selectedYear && selectedClassKey && selectedSubject && selectedExamTitle;
 
     return (
-        <div className="min-h-screen bg-slate-50/70 p-3 sm:p-5 md:p-6 space-y-5">
+        <div className="min-h-screen bg-slate-50/70  space-y-5">
             {/* Header Card */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 md:p-6 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

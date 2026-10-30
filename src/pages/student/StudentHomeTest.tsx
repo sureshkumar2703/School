@@ -1457,16 +1457,16 @@ const StudentHomeTest: React.FC = () => {
                     justifyContent: 'space-between',
                     flexWrap: 'wrap',
                     flexDirection: isMobile ? 'column' : 'row',
-                    gap: '14px',
+                    gap: '12px',
                     background: '#f8fafc',
-                    padding: isMobile ? '14px' : '14px 18px',
+                    padding: isMobile ? '12px' : '14px 18px',
                     borderRadius: '14px',
                     border: '1px solid #e2e8f0',
                     width: '100%',
                     boxSizing: 'border-box',
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flex: isMobile ? '1 1 100%' : '1 1 280px', minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', flex: '1 1 240px', minWidth: '220px' }}>
                     <BookOutlined style={{ color: '#2563eb', fontSize: '15px', marginTop: '2px', flexShrink: 0 }} />
                     <span style={{ fontSize: '12px', color: '#475569', lineHeight: 1.5 }}>
                         Need clarification on any home test questions or marking scheme? Contact your subject teacher.
@@ -1477,10 +1477,11 @@ const StudentHomeTest: React.FC = () => {
                     style={{
                         display: 'flex',
                         gap: '8px',
+                        alignItems: 'center',
+                        justifyContent: isMobile ? 'stretch' : 'flex-end',
                         width: isMobile ? '100%' : 'auto',
-                        flexDirection: isMobile ? 'column' : 'row',
+                        maxWidth: '100%',
                         flexWrap: 'wrap',
-                        flexShrink: 0,
                     }}
                 >
                     <Button
@@ -1488,7 +1489,12 @@ const StudentHomeTest: React.FC = () => {
                         block={isMobile}
                         icon={<TeamOutlined />}
                         onClick={handleGoToTeachers}
-                        style={{ borderRadius: '8px', fontWeight: 600 }}
+                        style={{
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            flex: isMobile ? '1 1 100%' : '1 1 auto',
+                            maxWidth: '100%',
+                        }}
                     >
                         Faculty Directory
                     </Button>
@@ -1502,6 +1508,8 @@ const StudentHomeTest: React.FC = () => {
                             borderRadius: '8px',
                             fontWeight: 600,
                             background: '#2563eb',
+                            flex: isMobile ? '1 1 100%' : '1 1 auto',
+                            maxWidth: '100%',
                         }}
                     >
                         Ask in Student Chat

@@ -449,7 +449,7 @@ const ClassNotes: React.FC = () => {
             style={{
                 minHeight: '100vh',
                 backgroundColor: '#f8fafc',
-                padding: '20px 24px',
+               
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '20px',
